@@ -6,6 +6,9 @@
 
 <a href="https://apkcombo.com/vi/termux/com.termux/" target="_blank">Link Download Termux</a>
 
+<a href="https://yeumoney.com/6eDEMz4" target="_blank">Link Download 
+map live pe chạy bằng cơm</a>
+
 > Lệnh bắt đầu 
 ```php
 pkg install wget openssl-tool proot -y && hash -r && wget https://raw.githubusercontent.com/EXALAB/AnLinux-Resources/master/Scripts/Installer/Ubuntu/ubuntu.sh && bash ubuntu.sh
