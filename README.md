@@ -6,7 +6,7 @@
 
 <a href="https://apkcombo.com/vi/termux/com.termux/" target="_blank">➣Link Download Termux</a>
 
-<a href="https://yeumoney.com/6eDEMz4" target="_blank">➣Link Download 
+<a href="https://link4m.com/CrOzPzF" target="_blank">➣Link Download 
 map live pe chạy bằng cơm</a>
 
 <a href="https://vt.tiktok.com/ZS2JaHjRv/" target="_blank">➣Link Hướng dẫn đưa map vào minecraft</a>
