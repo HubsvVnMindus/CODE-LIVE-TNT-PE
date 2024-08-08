@@ -1,13 +1,15 @@
 <h1 style="text-align: center;">Lệnh Setup</h1>
 
-<h3 style="text-align: right;">by Gaming Hung -_Tiktok: @hungyt345</h3>
+<h3 style="text-align: right;">by Gaming Hung - Tiktok: @hungyt345</h3>
 
 `lệnh setup`
 
-<a href="https://apkcombo.com/vi/termux/com.termux/" target="_blank">Link Download Termux</a>
+<a href="https://apkcombo.com/vi/termux/com.termux/" target="_blank">➣Link Download Termux</a>
 
-<a href="https://yeumoney.com/6eDEMz4" target="_blank">Link Download 
+<a href="https://yeumoney.com/6eDEMz4" target="_blank">➣Link Download 
 map live pe chạy bằng cơm</a>
+
+<a href="https://vt.tiktok.com/ZS2JaHjRv/" target="_blank">➣Link Hướng dẫn đưa map vào minecraft</a>
 
 > Lệnh bắt đầu 
 ```php
