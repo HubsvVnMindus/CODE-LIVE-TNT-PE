@@ -11,6 +11,8 @@ map live pe chạy bằng cơm</a>
 
 <a href="https://vt.tiktok.com/ZS2JaHjRv/" target="_blank">➣Link Hướng dẫn đưa map vào minecraft</a>
 
+<a href="https://youtu.be/9Q5SUZXIWiE?si=ch3liEYcjrtrnNUV" target="_blank">Link Hướng dẫn tải map</a>
+
 > Lệnh bắt đầu 
 ```php
 pkg install wget openssl-tool proot -y && hash -r && wget https://raw.githubusercontent.com/EXALAB/AnLinux-Resources/master/Scripts/Installer/Ubuntu/ubuntu.sh && bash ubuntu.sh
