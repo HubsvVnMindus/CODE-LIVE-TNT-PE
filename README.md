@@ -6,8 +6,8 @@
 
 <a href="https://apkcombo.com/vi/termux/com.termux/" target="_blank">➣Link Download Termux</a>
 
-<a href="https://link4m.com/QX9zfvQ" target="_blank">➣Link Download 
-map live tnt pe V2</a>
+<a href="" target="_blank">➣Link Download 
+map live tnt pe V2 link đang lỗi </a>
 
 <a href="https://vt.tiktok.com/ZS2JaHjRv/" target="_blank">➣Link Hướng dẫn đưa map vào minecraft</a>
 
