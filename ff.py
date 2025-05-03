@@ -22,9 +22,9 @@ def print_typing(text, delay=0.05):
 def get_user_info():
     global user_id
     while True:
-        print(f"{Fore.YELLOW}Nhập ID game Free Fire (8-10 Số): {Fore.RESET}", end="")
+        print(f"{Fore.YELLOW}Nhập ID game Free Fire (8-11 Số): {Fore.RESET}", end="")
         user_id = input()
-        if re.match(r'^\d{8,12}$', user_id):
+        if re.match(r'^\d{8,11}$', user_id):
             print(
                 f"{Fore.RED}[HUNG-TOOL]{Fore.RESET}"
                 f"{Fore.WHITE}-->>{Fore.RESET}"
@@ -56,7 +56,7 @@ def hack_diamonds():
     time.sleep(1)
     try:
         while True:
-            diamonds = random.randint(0, 5)
+            diamonds = random.randint(0, 2)
             for countdown in range(20, -1, -1):  # Äáº¿m ngÆ°á»£c tá»« 3 Ä‘áº¿n 0
                 print(
                     f"\r{Fore.RED}[HUNG-TOOL]{Fore.RESET}"
