@@ -24,7 +24,7 @@ def get_user_info():
     while True:
         print(f"{Fore.YELLOW}Nhập ID game Free Fire (8-10 Số): {Fore.RESET}", end="")
         user_id = input()
-        if re.match(r'^\d{8,10}$', user_id):
+        if re.match(r'^\d{8,12}$', user_id):
             print(
                 f"{Fore.RED}[HUNG-TOOL]{Fore.RESET}"
                 f"{Fore.WHITE}-->>{Fore.RESET}"
