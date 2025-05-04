@@ -227,7 +227,10 @@ def display_menu():
     print_typing(f"{Fore.RED}║và đây cũng là bản test server nên kim cương  {Fore.RESET}", delay=0.03)
     print_typing(f"{Fore.RED}║hay là vàng sẽ về acc sau 24h {Fore.RESET}", delay=0.03)
     print(f"{Fore.RED}╚══════════════════════════════════════════════════════╝{Fore.RESET}")
-    print(f"{Fore.YELLOW}[{datetime.now().strftime('%H:%M:%S')}] Người chơi: ID: {Fore.CYAN}{user_id} | Tổng nhận: {Fore.YELLOW}{user_data.get(user_id, {'total_diamonds': 0})['total_diamonds']} 💎{Fore.RESET} {Fore.GREEN}Phiên bản: V1.4{Fore.RESET}")
+    print(f"{Fore.YELLOW}[{datetime.now().strftime('%H:%M:%S')}]")
+    print(f"{Fore.YELLOW}ID: {Fore.CYAN}{user_id}")
+    print(f"{Fore.YELLOW}Tổng nhận: {Fore.YELLOW}{user_data.get(user_id, {'total_diamonds': 0})['total_diamonds']} 💎{Fore.RESET}")
+    print(f"{Fore.GREEN}Phiên bản: V1.4{Fore.RESET}")
     print(f"{Fore.GREEN}┌──────────────────────────────────────────────────────┐{Fore.RESET}")
     
     options = [
