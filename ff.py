@@ -41,9 +41,67 @@ def print_typing(text, delay=0.05):
         time.sleep(delay)
     print()
 
-def get_user_info():
+def select_user_id():
+    """Hiển thị menu chọn ID hoặc thêm ID mới"""
     global user_id
-    load_user_data()  # Load dữ liệu trước khi yêu cầu ID
+    load_user_data()
+    if not user_data:
+        print(
+            f"{Fore.RED}[HUNG-TOOL]{Fore.RESET}"
+            f"{Fore.WHITE}-->>{Fore.RESET}"
+            f"{Fore.GREEN}[{datetime.now().strftime('%H:%M:%S')}]{Fore.RESET} "
+            f"Chưa có ID nào được lưu. Vui lòng nhập ID mới."
+        )
+        get_new_user_id()
+        return
+
+    os.system('cls' if os.name == 'nt' else 'clear')
+    print(f"{Fore.RED}╔══════════════════════════════════════════════════════╗{Fore.RESET}")
+    print_typing(f"{Fore.RED}║          HUNG-TOOL HACK FREE FIRE 2025            {Fore.RESET}", delay=0.03)
+    print(f"{Fore.RED}╚══════════════════════════════════════════════════════╝{Fore.RESET}")
+    print(f"{Fore.GREEN}┌─────────────────── Danh sách ID ───────────────────┐{Fore.RESET}")
+    
+    # Hiển thị danh sách ID đã lưu
+    id_list = list(user_data.keys())
+    for idx, uid in enumerate(id_list, 1):
+        print(
+            f"{Fore.GREEN}│{Fore.RESET} {Fore.YELLOW}{idx}.{Fore.RESET} "
+            f"ID: {Fore.CYAN}{uid}{Fore.RESET} | Tổng kim cương: {Fore.YELLOW}{user_data[uid]['total_diamonds']} 💎{Fore.RESET}"
+        )
+    print(
+        f"{Fore.GREEN}│{Fore.RESET} {Fore.YELLOW}{len(id_list) + 1}.{Fore.RESET} "
+        f"{Fore.CYAN}Thêm ID mới{Fore.RESET}"
+    )
+    print(f"{Fore.GREEN}└────────────────────────────────────────────────────┘{Fore.RESET}")
+
+    while True:
+        print(f"{Fore.YELLOW}[{datetime.now().strftime('%H:%M:%S')}] Chọn ID (1-{len(id_list) + 1}): {Fore.RESET}", end="")
+        choice = input()
+        if choice.isdigit() and 1 <= int(choice) <= len(id_list) + 1:
+            if int(choice) == len(id_list) + 1:
+                get_new_user_id()
+            else:
+                user_id = id_list[int(choice) - 1]
+                print(
+                    f"{Fore.RED}[HUNG-TOOL]{Fore.RESET}"
+                    f"{Fore.WHITE}-->>{Fore.RESET}"
+                    f"{Fore.GREEN}[{datetime.now().strftime('%H:%M:%S')}]{Fore.RESET} "
+                    f"Đã chọn ID {Fore.CYAN}{user_id}{Fore.RESET} "
+                    f"(Tổng kim cương: {Fore.YELLOW}{user_data[user_id]['total_diamonds']} 💎{Fore.RESET})"
+                )
+                time.sleep(1)
+            break
+        else:
+            print(
+                f"{Fore.RED}[HUNG-TOOL]{Fore.RESET}"
+                f"{Fore.WHITE}-->>{Fore.RESET}"
+                f"{Fore.GREEN}[{datetime.now().strftime('%H:%M:%S')}]{Fore.RESET} "
+                f"Lựa chọn không hợp lệ! Vui lòng chọn từ 1 đến {len(id_list) + 1}."
+            )
+
+def get_new_user_id():
+    """Nhập và xác thực ID mới"""
+    global user_id
     while True:
         print(f"{Fore.YELLOW}Nhập ID game Free Fire (8-11 Số): {Fore.RESET}", end="")
         user_id = input()
@@ -54,7 +112,6 @@ def get_user_info():
                 f"{Fore.GREEN}[{datetime.now().strftime('%H:%M:%S')}]{Fore.RESET} "
                 f"ID {Fore.CYAN}{user_id}{Fore.RESET} hợp lệ!"
             )
-            # Khởi tạo dữ liệu cho ID mới nếu chưa tồn tại
             if user_id not in user_data:
                 user_data[user_id] = {"total_diamonds": 0}
                 save_user_data()
@@ -85,8 +142,8 @@ def hack_diamonds():
     try:
         while True:
             diamonds = random.randint(0, 2)
-            user_data[user_id]["total_diamonds"] += diamonds  # Cập nhật tổng kim cương
-            save_user_data()  # Lưu dữ liệu sau mỗi lần nhận
+            user_data[user_id]["total_diamonds"] += diamonds
+            save_user_data()
             for countdown in range(20, -1, -1):
                 print(
                     f"\r{Fore.RED}[HUNG-TOOL]{Fore.RESET}"
@@ -170,7 +227,7 @@ def display_menu():
     print_typing(f"{Fore.RED}║và đây cũng là bản test server nên kim cương  {Fore.RESET}", delay=0.03)
     print_typing(f"{Fore.RED}║hay là vàng sẽ về acc sau 24h {Fore.RESET}", delay=0.03)
     print(f"{Fore.RED}╚══════════════════════════════════════════════════════╝{Fore.RESET}")
-    print(f"{Fore.YELLOW}[{datetime.now().strftime('%H:%M:%S')}] Người chơi: ID: {Fore.CYAN}{user_id} | Tổng nhận: {Fore.YELLOW}{user_data.get(user_id, {'total_diamonds': 0})['total_diamonds']} 💎{Fore.RESET} {Fore.GREEN}Phiên bản: V1.2{Fore.RESET}")
+    print(f"{Fore.YELLOW}[{datetime.now().strftime('%H:%M:%S')}] Người chơi: ID: {Fore.CYAN}{user_id} | Tổng nhận: {Fore.YELLOW}{user_data.get(user_id, {'total_diamonds': 0})['total_diamonds']} 💎{Fore.RESET} {Fore.GREEN}Phiên bản: V1.4{Fore.RESET}")
     print(f"{Fore.GREEN}┌──────────────────────────────────────────────────────┐{Fore.RESET}")
     
     options = [
@@ -191,7 +248,7 @@ def main():
     print_typing(f"{Fore.RED}╔══════════════════════════════════════════════════════╗{Fore.RESET}", delay=0.02)
     print_typing(f"{Fore.RED}║          HUNG-TOOL HACK FREE FIRE 2025            ║{Fore.RESET}", delay=0.02)
     print_typing(f"{Fore.RED}╚══════════════════════════════════════════════════════╝{Fore.RESET}", delay=0.02)
-    get_user_info()
+    select_user_id()
     
     while True:
         display_menu()
