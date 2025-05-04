@@ -5,12 +5,34 @@ import re
 from colorama import init, Fore
 import sys
 import os
+import json
 
 # Khởi tạo colorama
 init()
 
 # Biến toàn cục để lưu ID
 user_id = ""
+user_data = {}  # Lưu trữ dữ liệu người dùng {ID: total_diamonds}
+
+# Đường dẫn file lưu trữ dữ liệu
+DATA_FILE = "user_data.json"
+
+def load_user_data():
+    """Load dữ liệu người dùng từ file JSON"""
+    global user_data
+    if os.path.exists(DATA_FILE):
+        try:
+            with open(DATA_FILE, 'r') as file:
+                user_data = json.load(file)
+        except json.JSONDecodeError:
+            user_data = {}
+    else:
+        user_data = {}
+
+def save_user_data():
+    """Lưu dữ liệu người dùng vào file JSON"""
+    with open(DATA_FILE, 'w') as file:
+        json.dump(user_data, file, indent=4)
 
 def print_typing(text, delay=0.05):
     """Hiệu ứng gõ chữ cho văn bản"""
@@ -21,6 +43,7 @@ def print_typing(text, delay=0.05):
 
 def get_user_info():
     global user_id
+    load_user_data()  # Load dữ liệu trước khi yêu cầu ID
     while True:
         print(f"{Fore.YELLOW}Nhập ID game Free Fire (8-11 Số): {Fore.RESET}", end="")
         user_id = input()
@@ -31,6 +54,10 @@ def get_user_info():
                 f"{Fore.GREEN}[{datetime.now().strftime('%H:%M:%S')}]{Fore.RESET} "
                 f"ID {Fore.CYAN}{user_id}{Fore.RESET} hợp lệ!"
             )
+            # Khởi tạo dữ liệu cho ID mới nếu chưa tồn tại
+            if user_id not in user_data:
+                user_data[user_id] = {"total_diamonds": 0}
+                save_user_data()
             time.sleep(1)
             break
         else:
@@ -38,10 +65,11 @@ def get_user_info():
                 f"{Fore.RED}[HUNG-TOOL]{Fore.RESET}"
                 f"{Fore.WHITE}-->>{Fore.RESET}"
                 f"{Fore.GREEN}[{datetime.now().strftime('%H:%M:%S')}]{Fore.RESET} "
-                f"ID {Fore.CYAN}{user_id}{Fore.RESET} không hợp lệ! ID Free Fire phải là 8-10 chữ số."
+                f"ID {Fore.CYAN}{user_id}{Fore.RESET} không hợp lệ! ID Free Fire phải là 8-11 chữ số."
             )
 
 def hack_diamonds():
+    global user_data
     print(
         f"\n{Fore.RED}[HUNG-TOOL]{Fore.RESET}"
         f"{Fore.WHITE}-->>{Fore.RESET}"
@@ -57,26 +85,30 @@ def hack_diamonds():
     try:
         while True:
             diamonds = random.randint(0, 2)
-            for countdown in range(20, -1, -1):  # Äáº¿m ngÆ°á»£c tá»« 3 Ä‘áº¿n 0
+            user_data[user_id]["total_diamonds"] += diamonds  # Cập nhật tổng kim cương
+            save_user_data()  # Lưu dữ liệu sau mỗi lần nhận
+            for countdown in range(20, -1, -1):
                 print(
                     f"\r{Fore.RED}[HUNG-TOOL]{Fore.RESET}"
                     f"{Fore.WHITE}-->>{Fore.RESET}"
                     f"{Fore.GREEN}[{countdown}]{Fore.RESET}"
                     f"{Fore.YELLOW}[{datetime.now().strftime('%H:%M:%S')}]{Fore.RESET} "
-                    f"ID {Fore.CYAN}{user_id}{Fore.RESET} nhận được {Fore.WHITE}{diamonds} 💎 kim cương {Fore.RESET}",
+                    f"ID {Fore.CYAN}{user_id}{Fore.RESET} nhận được {Fore.WHITE}{diamonds} 💎 kim cương {Fore.RESET}"
+                    f" | Tổng nhận: {Fore.YELLOW}{user_data[user_id]['total_diamonds']} 💎{Fore.RESET}",
                     end=""
                 )
-                sys.stdout.flush()  # Äáº£m báº£o in ngay láº­p tá»©c
-                time.sleep(1)  # Chá» ~0.75 giĂ¢y Ä‘á»ƒ tá»•ng cá»™ng ~3 giĂ¢y cho 4 láº§n in
-            print()  # Xuá»‘ng dĂ²ng sau khi Ä‘áº¿m ngÆ°á»£c xong
+                sys.stdout.flush()
+                time.sleep(1)
+            print()
     except KeyboardInterrupt:
         print(
             f"\n{Fore.RED}[HUNG-TOOL]{Fore.RESET}"
             f"{Fore.WHITE}-->>{Fore.RESET}"
             f"{Fore.GREEN}[{datetime.now().strftime('%H:%M:%S')}]{Fore.RESET} "
-            f"Đã dừng hack kim cương"
+            f"Đã dừng hack kim cương. Tổng kim cương nhận được: {Fore.YELLOW}{user_data[user_id]['total_diamonds']} 💎{Fore.RESET}"
         )
         time.sleep(1)
+
 def hack_coins():
     print(
         f"\n{Fore.RED}[HUNG-TOOL]{Fore.RESET}"
@@ -86,7 +118,7 @@ def hack_coins():
     )
     for _ in range(30):
         print("▬", end="", flush=True)
-        time.sleep(0.5) 
+        time.sleep(0.5)
     print()
     print(
         f"{Fore.RED}[HUNG-TOOL]{Fore.RESET}"
@@ -101,12 +133,12 @@ def get_game_name():
         f"\n{Fore.RED}[HUNG-TOOL]{Fore.RESET}"
         f"{Fore.WHITE}-->>{Fore.RESET}"
         f"{Fore.GREEN}[{datetime.now().strftime('%H:%M:%S')}]{Fore.RESET} "
-        f"Nhập ID game Free Fire (8-10 chữ số): {Fore.RESET}",
+        f"Nhập ID game Free Fire (8-11 chữ số): {Fore.RESET}",
         end=""
     )
     temp_id = input()
     time.sleep(1)
-    if re.match(r'^\d{8,10}$', temp_id):
+    if re.match(r'^\d{8,11}$', temp_id):
         print(
             f"{Fore.RED}[HUNG-TOOL]{Fore.RESET}"
             f"{Fore.WHITE}-->>{Fore.RESET}"
@@ -118,7 +150,7 @@ def get_game_name():
             f"{Fore.RED}[HUNG-TOOL]{Fore.RESET}"
             f"{Fore.WHITE}-->>{Fore.RESET}"
             f"{Fore.GREEN}[{datetime.now().strftime('%H:%M:%S')}]{Fore.RESET} "
-            f"ID {Fore.CYAN}{temp_id}{Fore.RESET} không hợp lệ! ID Free Fire phải là 8-10 chữ số."
+            f"ID {Fore.CYAN}{temp_id}{Fore.RESET} không hợp lệ! ID Free Fire phải là 8-11 chữ số."
         )
     time.sleep(1)
     print(
@@ -130,7 +162,7 @@ def get_game_name():
 
 def display_menu():
     """Hiển thị menu với hiệu ứng xuất hiện dần, xóa màn hình trước"""
-    os.system('cls' if os.name == 'nt' else 'clear')  # Xóa màn hình
+    os.system('cls' if os.name == 'nt' else 'clear')
     print(f"{Fore.RED}╔══════════════════════════════════════════════════════╗{Fore.RESET}")
     print_typing(f"{Fore.RED}║          HUNG-TOOL HACK FREE FIRE 2025            {Fore.RESET}", delay=0.03)
     print_typing(f"{Fore.RED}║ {Fore.RESET}", delay=0.03)
@@ -138,7 +170,7 @@ def display_menu():
     print_typing(f"{Fore.RED}║và đây cũng là bản test server nên kim cương  {Fore.RESET}", delay=0.03)
     print_typing(f"{Fore.RED}║hay là vàng sẽ về acc sau 24h {Fore.RESET}", delay=0.03)
     print(f"{Fore.RED}╚══════════════════════════════════════════════════════╝{Fore.RESET}")
-    print(f"{Fore.YELLOW}[{datetime.now().strftime('%H:%M:%S')}] Người chơi: ID: {Fore.CYAN}{user_id}               {Fore.GREEN}Phiên bản: V1.2{Fore.RESET}")
+    print(f"{Fore.YELLOW}[{datetime.now().strftime('%H:%M:%S')}] Người chơi: ID: {Fore.CYAN}{user_id} | Tổng nhận: {Fore.YELLOW}{user_data.get(user_id, {'total_diamonds': 0})['total_diamonds']} 💎{Fore.RESET} {Fore.GREEN}Phiên bản: V1.2{Fore.RESET}")
     print(f"{Fore.GREEN}┌──────────────────────────────────────────────────────┐{Fore.RESET}")
     
     options = [
@@ -150,12 +182,11 @@ def display_menu():
         num, text = option.split(". ", 1)
         print(f"{Fore.GREEN}│{Fore.RESET} {Fore.YELLOW}{num}.{Fore.RESET} {Fore.CYAN}{text:<50}{Fore.RESET}{Fore.GREEN}│{Fore.RESET}")
         sys.stdout.flush()
-        time.sleep(0.2)  # Hiệu ứng xuất hiện từng dòng
+        time.sleep(0.2)
 
     print(f"{Fore.GREEN}└──────────────────────────────────────────────────────┘{Fore.RESET}")
 
 def main():
-    # Xóa màn hình và hiển thị tiêu đề ban đầu
     os.system('cls' if os.name == 'nt' else 'clear')
     print_typing(f"{Fore.RED}╔══════════════════════════════════════════════════════╗{Fore.RESET}", delay=0.02)
     print_typing(f"{Fore.RED}║          HUNG-TOOL HACK FREE FIRE 2025            ║{Fore.RESET}", delay=0.02)
