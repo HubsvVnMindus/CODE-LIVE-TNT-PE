@@ -143,13 +143,6 @@ def hack_diamonds():
     try:
         while True:
             # Hiển thị thông báo trước khi bắt đầu mỗi lần hack
-            print(
-                f"{Fore.RED}[HUNG-TOOL]{Fore.RESET}"
-                f"{Fore.WHITE}-->>{Fore.RESET}"
-                f"{Fore.GREEN}[20s]{Fore.RESET}"
-                f"{Fore.YELLOW}[{datetime.now().strftime('%H:%M:%S')}]{Fore.RESET} "
-                f"Đang hack kim cương cho ID {Fore.CYAN}{user_id}{Fore.RESET}..."
-            )
             diamonds = random.randint(0, 2)
             user_data[user_id]["total_diamonds"] += diamonds
             save_user_data()
@@ -249,7 +242,7 @@ def display_menu():
     print(f"{Fore.RED}╚══════════════════════════════════════════════════════╝{Fore.RESET}")
     # Đảm bảo user_id tồn tại và lấy total_diamonds trực tiếp
     total_diamonds = user_data[user_id]['total_diamonds'] if user_id in user_data else 0
-    print(f"{Fore.YELLOW}[{datetime.now().strftime('%H:%M:%S')}] Người chơi: ID: {Fore.CYAN}{user_id} | Tổng nhận: {Fore.YELLOW}{total_diamonds} 💎{Fore.RESET} {Fore.GREEN}Phiên bản: V1.2{Fore.RESET}")
+    print(f"{Fore.YELLOW} Người chơi: ID: {Fore.CYAN}{user_id} | Tổng nhận: {Fore.YELLOW}{total_diamonds} 💎{Fore.RESET} {Fore.GREEN}Phiên bản: V1.2{Fore.RESET}")
     print(f"{Fore.GREEN}┌──────────────────────────────────────────────────────┐{Fore.RESET}")
     
     options = [
