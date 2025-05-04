@@ -142,6 +142,14 @@ def hack_diamonds():
     elapsed_seconds = 0  # Biến đếm giây tăng dần
     try:
         while True:
+            # Hiển thị thông báo trước khi bắt đầu mỗi lần hack
+            print(
+                f"{Fore.RED}[HUNG-TOOL]{Fore.RESET}"
+                f"{Fore.WHITE}-->>{Fore.RESET}"
+                f"{Fore.GREEN}[20s]{Fore.RESET}"  # Thêm chỉ báo [20s]
+                f"{Fore.YELLOW}[{datetime.now().strftime('%H:%M:%S')}]{Fore.RESET} "
+                f"Đang hack kim cương cho ID {Fore.CYAN}{user_id}{Fore.RESET}..."
+            )
             diamonds = random.randint(0, 2)
             user_data[user_id]["total_diamonds"] += diamonds
             save_user_data()
