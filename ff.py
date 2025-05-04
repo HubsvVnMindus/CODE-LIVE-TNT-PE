@@ -139,6 +139,7 @@ def hack_diamonds():
     print()
     print(f"Nhấn Ctrl+C để dừng và quay lại menu.{Fore.RESET}")
     time.sleep(1)
+    elapsed_seconds = 0  # Biến đếm giây tăng dần
     try:
         while True:
             diamonds = random.randint(0, 2)
@@ -148,7 +149,8 @@ def hack_diamonds():
                 print(
                     f"\r{Fore.RED}[HUNG-TOOL]{Fore.RESET}"
                     f"{Fore.WHITE}-->>{Fore.RESET}"
-                    f"{Fore.GREEN}[{countdown}]{Fore.RESET}"
+                    f"{Fore.GREEN}[Đếm ngược: {countdown}]{Fore.RESET}"
+                    f"{Fore.YELLOW}[Đã chạy: {elapsed_seconds}s]{Fore.RESET}"  # Hiển thị thời gian đã chạy
                     f"{Fore.YELLOW}[{datetime.now().strftime('%H:%M:%S')}]{Fore.RESET} "
                     f"ID {Fore.CYAN}{user_id}{Fore.RESET} nhận được {Fore.WHITE}{diamonds} 💎 kim cương {Fore.RESET}"
                     f" | Tổng nhận: {Fore.YELLOW}{user_data[user_id]['total_diamonds']} 💎{Fore.RESET}",
@@ -156,6 +158,7 @@ def hack_diamonds():
                 )
                 sys.stdout.flush()
                 time.sleep(1)
+                elapsed_seconds += 1  # Tăng thời gian đã chạy
             print()
     except KeyboardInterrupt:
         print(
@@ -163,7 +166,9 @@ def hack_diamonds():
             f"{Fore.WHITE}-->>{Fore.RESET}"
             f"{Fore.GREEN}[{datetime.now().strftime('%H:%M:%S')}]{Fore.RESET} "
             f"Đã dừng hack kim cương. Tổng kim cương nhận được: {Fore.YELLOW}{user_data[user_id]['total_diamonds']} 💎{Fore.RESET}"
+            f" | Thời gian đã chạy: {Fore.YELLOW}{elapsed_seconds}s{Fore.RESET}"
         )
+        save_user_data()
         time.sleep(1)
 
 def hack_coins():
@@ -227,10 +232,9 @@ def display_menu():
     print_typing(f"{Fore.RED}║và đây cũng là bản test server nên kim cương  {Fore.RESET}", delay=0.03)
     print_typing(f"{Fore.RED}║hay là vàng sẽ về acc sau 24h {Fore.RESET}", delay=0.03)
     print(f"{Fore.RED}╚══════════════════════════════════════════════════════╝{Fore.RESET}")
-    print(f"{Fore.YELLOW}[{datetime.now().strftime('%H:%M:%S')}]")
-    print(f"{Fore.YELLOW}ID: {Fore.CYAN}{user_id}")
-    print(f"{Fore.YELLOW}Tổng nhận: {Fore.YELLOW}{user_data.get(user_id, {'total_diamonds': 0})['total_diamonds']} 💎{Fore.RESET}")
-    print(f"{Fore.GREEN}Phiên bản: V1.4{Fore.RESET}")
+    # Đảm bảo user_id tồn tại và lấy total_diamonds trực tiếp
+    total_diamonds = user_data[user_id]['total_diamonds'] if user_id in user_data else 0
+    print(f"{Fore.YELLOW}[{datetime.now().strftime('%H:%M:%S')}] Người chơi: ID: {Fore.CYAN}{user_id} | Tổng nhận: {Fore.YELLOW}{total_diamonds} 💎{Fore.RESET} {Fore.GREEN}Phiên bản: V1.2{Fore.RESET}")
     print(f"{Fore.GREEN}┌──────────────────────────────────────────────────────┐{Fore.RESET}")
     
     options = [
