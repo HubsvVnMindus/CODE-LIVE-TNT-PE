@@ -146,20 +146,29 @@ def hack_diamonds():
             print(
                 f"{Fore.RED}[HUNG-TOOL]{Fore.RESET}"
                 f"{Fore.WHITE}-->>{Fore.RESET}"
-                f"{Fore.GREEN}[20s]{Fore.RESET}"  # Thêm chỉ báo [20s]
+                f"{Fore.GREEN}[20s]{Fore.RESET}"
                 f"{Fore.YELLOW}[{datetime.now().strftime('%H:%M:%S')}]{Fore.RESET} "
                 f"Đang hack kim cương cho ID {Fore.CYAN}{user_id}{Fore.RESET}..."
             )
             diamonds = random.randint(0, 2)
             user_data[user_id]["total_diamonds"] += diamonds
             save_user_data()
-            # Đếm 20 giây mà không hiển thị đếm ngược
-            for _ in range(20):
+            # Đếm ngược từ 20 về 0, hiển thị trên cùng một dòng
+            for countdown in range(20, -1, -1):
+                print(
+                    f"\r{Fore.RED}[HUNG-TOOL]{Fore.RESET}"
+                    f"{Fore.WHITE}-->>{Fore.RESET}"
+                    f"{Fore.GREEN}[{countdown}]{Fore.RESET}"
+                    f"{Fore.YELLOW}[{datetime.now().strftime('%H:%M:%S')}]{Fore.RESET} "
+                    f"Đang hack kim cương cho ID {Fore.CYAN}{user_id}{Fore.RESET}...",
+                    end=""
+                )
+                sys.stdout.flush()
                 time.sleep(1)
                 elapsed_seconds += 1
             # Sau 20 giây, in kết quả xuống dòng mới
             print(
-                f"{Fore.RED}[HUNG-TOOL]{Fore.RESET}"
+                f"\n{Fore.RED}[HUNG-TOOL]{Fore.RESET}"
                 f"{Fore.WHITE}-->>{Fore.RESET}"
                 f"{Fore.YELLOW}[Đã chạy: {elapsed_seconds}s]{Fore.RESET}"
                 f"{Fore.YELLOW}[{datetime.now().strftime('%H:%M:%S')}]{Fore.RESET} "
