@@ -6,16 +6,85 @@ from colorama import init, Fore
 import sys
 import os
 import json
+import select
 
 # Khởi tạo colorama
 init()
 
-# Biến toàn cục để lưu ID
+# Biến toàn cục
 user_id = ""
-user_data = {}  # Lưu trữ dữ liệu người dùng {ID: total_diamonds}
-
-# Đường dẫn file lưu trữ dữ liệu
+user_data = {}  # Lưu trữ dữ liệu người dùng {ID: {total_diamonds, total_coins, history, last_hack_date, hack_count}}
 DATA_FILE = "user_data.json"
+current_lang = "vi"  # Ngôn ngữ mặc định: tiếng Việt
+language_data = {}  # Dữ liệu ngôn ngữ
+
+def load_language(lang="vi"):
+    """Tải ngôn ngữ cho giao diện"""
+    languages = {
+        "vi": {
+            "welcome": "HUNG-TOOL HACK FREE FIRE 2025",
+            "invalid_choice": "Lựa chọn không hợp lệ! Vui lòng chọn từ 1 đến 7.",
+            "exit_message": "Đang thoát tool... Cảm ơn bạn đã sử dụng!",
+            "history_title": "LỊCH SỬ GIAO DỊCH - ID: {}",
+            "no_history": "Chưa có giao dịch nào!",
+            "no_data": "Chưa có dữ liệu để hiển thị biểu đồ!",
+            "chart_displayed": "Biểu đồ thống kê đã được hiển thị!",
+            "password_prompt": "Nhập mật khẩu (còn {} lần): ",
+            "password_success": "Đăng nhập thành công!",
+            "password_fail": "Mật khẩu sai!",
+            "password_limit": "Hết lượt thử. Thoát chương trình.",
+            "no_id": "Chưa có ID nào được lưu. Vui lòng nhập ID mới.",
+            "id_prompt": "Nhập ID mới (chỉ số, ví dụ: 123456789): ",
+            "id_invalid": "ID không hợp lệ! Chỉ được chứa số.",
+            "id_exists": "ID đã tồn tại! Vui lòng nhập ID khác.",
+            "id_added": "ID {} đã được thêm!",
+            "id_selected": "Đã chọn ID: {}",
+            "invalid_selection": "Lựa chọn không hợp lệ!",
+            "server_connecting": "Đang kết nối đến server...",
+            "server_success": "Kết nối thành công!",
+            "server_fail": "Kết nối thất bại! Vui lòng thử lại sau.",
+            "hack_limit": "Bạn đã đạt giới hạn hack trong ngày!",
+            "diamonds_received": "Nhận được {} kim cương! Tổng: {}",
+            "coins_received": "Nhận được {} vàng! Tổng: {}",
+            "press_enter": "Nhấn Enter để tiếp tục...",
+            "select_language": "Chọn ngôn ngữ / Select language:",
+            "lang_vi": "1. Tiếng Việt",
+            "lang_en": "2. English",
+            "lang_prompt": "Nhập lựa chọn (1-2): "
+        },
+        "en": {
+            "welcome": "HUNG-TOOL FREE FIRE HACK 2025",
+            "invalid_choice": "Invalid choice! Please select from 1 to 7.",
+            "exit_message": "Exiting tool... Thank you for using!",
+            "history_title": "TRANSACTION HISTORY - ID: {}",
+            "no_history": "No transactions yet!",
+            "no_data": "No data to display chart!",
+            "chart_displayed": "Statistics chart has been displayed!",
+            "password_prompt": "Enter password ({} attempts left): ",
+            "password_success": "Login successful!",
+            "password_fail": "Incorrect password!",
+            "password_limit": "No attempts left. Exiting program.",
+            "no_id": "No IDs stored yet. Please enter a new ID.",
+            "id_prompt": "Enter new ID (numbers only, e.g., 123456789): ",
+            "id_invalid": "Invalid ID! Must contain only numbers.",
+            "id_exists": "ID already exists! Please enter a different ID.",
+            "id_added": "ID {} has been added!",
+            "id_selected": "Selected ID: {}",
+            "invalid_selection": "Invalid selection!",
+            "server_connecting": "Connecting to server...",
+            "server_success": "Connection successful!",
+            "server_fail": "Connection failed! Please try again later.",
+            "hack_limit": "You have reached the daily hack limit!",
+            "diamonds_received": "Received {} diamonds! Total: {}",
+            "coins_received": "Received {} coins! Total: {}",
+            "press_enter": "Press Enter to continue...",
+            "select_language": "Select language:",
+            "lang_vi": "1. Vietnamese",
+            "lang_en": "2. English",
+            "lang_prompt": "Enter choice (1-2): "
+        }
+    }
+    return languages.get(lang, languages["vi"])
 
 def load_user_data():
     """Load dữ liệu người dùng từ file JSON"""
@@ -34,221 +103,265 @@ def save_user_data():
     with open(DATA_FILE, 'w') as file:
         json.dump(user_data, file, indent=4)
 
-def print_typing(text, delay=0.05):
+def print_typing(text, delay=0.05, skipable=True):
     """Hiệu ứng gõ chữ cho văn bản"""
     for char in text:
         print(char, end="", flush=True)
         time.sleep(delay)
+        if skipable and sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
+            input()
+            print(text[len(text)-len(text):], end="")
+            break
     print()
 
-def select_user_id():
+def login():
+    """Yêu cầu mật khẩu trước khi vào chương trình"""
+    correct_password = "hungtool2025"
+    attempts = 3
+    while attempts > 0:
+        password = input(f"{Fore.GREEN}{language_data['password_prompt'].format(attempts)}{Fore.RESET}")
+        if password == correct_password:
+            print(f"{Fore.GREEN}{language_data['password_success']}{Fore.RESET}")
+            return True
+        attempts -= 1
+        print(f"{Fore.RED}{language_data['password_fail']}{Fore.RESET}")
+    print(f"{Fore.RED}{language_data['password_limit']}{Fore.RESET}")
+    sys.exit()
+
+def get_new_user_id():
+    """Nhập và xác nhận ID mới"""
+    global user_id
+    while True:
+        user_id = input(f"{Fore.GREEN}{language_data['id_prompt']}{Fore.RESET}")
+        if re.match(r'^\d+$', user_id):
+            if user_id not in user_data:
+                user_data[user_id] = {'total_diamonds': 0, 'total_coins': 0, 'history': [], 'last_hack_date': '', 'hack_count': 0}
+                save_user_data()
+                print(f"{Fore.GREEN}{language_data['id_added'].format(user_id)}{Fore.RESET}")
+                break
+            else:
+                print(f"{Fore.RED}{language_data['id_exists']}{Fore.RESET}")
+        else:
+            print(f"{Fore.RED}{language_data['id_invalid']}{Fore.RESET}")
+
+def selet_user_id():
     """Hiển thị menu chọn ID hoặc thêm ID mới"""
     global user_id
     load_user_data()
+    
     if not user_data:
         print(
             f"{Fore.RED}[HUNG-TOOL]{Fore.RESET}"
             f"{Fore.WHITE}-->>{Fore.RESET}"
             f"{Fore.GREEN}[{datetime.now().strftime('%H:%M:%S')}]{Fore.RESET} "
-            f"Chưa có ID nào được lưu. Vui lòng nhập ID mới."
+            f"{language_data['no_id']}"
         )
         get_new_user_id()
         return
 
     os.system('cls' if os.name == 'nt' else 'clear')
     print(f"{Fore.RED}╔══════════════════════════════════════════════════════╗{Fore.RESET}")
-    print_typing(f"{Fore.RED}║          HUNG-TOOL HACK FREE FIRE 2025            {Fore.RESET}", delay=0.03)
+    print_typing(f"{Fore.RED}║          {language_data['welcome']}            ║{Fore.RESET}", delay=0.02)
     print(f"{Fore.RED}╚══════════════════════════════════════════════════════╝{Fore.RESET}")
-    print(f"{Fore.GREEN}┌─────────────────── Danh sách ID ───────────────────┐{Fore.RESET}")
+
+    print(f"\n{Fore.CYAN}{language_data['select_language']}{Fore.RESET}")
+    print(f"{Fore.CYAN}{language_data['lang_vi']}{Fore.RESET}")
+    print(f"{Fore.CYAN}{language_data['lang_en']}{Fore.RESET}")
+    choice = input(f"{Fore.GREEN}{language_data['lang_prompt']}{Fore.RESET}")
+    global current_lang, language_data
+    current_lang = "vi" if choice == "1" else "en"
+    language_data = load_language(current_lang)
+
+    print(f"\n{Fore.CYAN}Danh sách ID đã lưu:{Fore.RESET}")
+    for idx, uid in enumerate(user_data.keys(), 1):
+        print(f"{Fore.YELLOW}{idx}. {uid} (Kim cương: {user_data[uid]['total_diamonds']}, Vàng: {user_data[uid]['total_coins']}){Fore.RESET}")
     
-    # Hiển thị danh sách ID đã lưu
-    id_list = list(user_data.keys())
-    for idx, uid in enumerate(id_list, 1):
-        print(
-            f"{Fore.GREEN}│{Fore.RESET} {Fore.YELLOW}{idx}.{Fore.RESET} "
-            f"ID: {Fore.CYAN}{uid}{Fore.RESET} | Tổng kim cương: {Fore.YELLOW}{user_data[uid]['total_diamonds']} 💎{Fore.RESET}"
-        )
-    print(
-        f"{Fore.GREEN}│{Fore.RESET} {Fore.YELLOW}{len(id_list) + 1}.{Fore.RESET} "
-        f"{Fore.CYAN}Thêm ID mới{Fore.RESET}"
-    )
-    print(f"{Fore.GREEN}└────────────────────────────────────────────────────┘{Fore.RESET}")
-
-    while True:
-        print(f"{Fore.YELLOW}[{datetime.now().strftime('%H:%M:%S')}] Chọn ID (1-{len(id_list) + 1}): {Fore.RESET}", end="")
-        choice = input()
-        if choice.isdigit() and 1 <= int(choice) <= len(id_list) + 1:
-            if int(choice) == len(id_list) + 1:
-                get_new_user_id()
+    print(f"{Fore.CYAN}0. Thêm ID mới{Fore.RESET}")
+    choice = input(f"\n{Fore.GREEN}Chọn số thứ tự ID hoặc 0 để thêm mới: {Fore.RESET}")
+    
+    if choice == '0':
+        get_new_user_id()
+    else:
+        try:
+            choice = int(choice) - 1
+            if 0 <= choice < len(user_data):
+                user_id = list(user_data.keys())[choice]
+                print(f"{Fore.GREEN}{language_data['id_selected'].format(user_id)}{Fore.RESET}")
             else:
-                user_id = id_list[int(choice) - 1]
-                print(
-                    f"{Fore.RED}[HUNG-TOOL]{Fore.RESET}"
-                    f"{Fore.WHITE}-->>{Fore.RESET}"
-                    f"{Fore.GREEN}[{datetime.now().strftime('%H:%M:%S')}]{Fore.RESET} "
-                    f"Đã chọn ID {Fore.CYAN}{user_id}{Fore.RESET} "
-                    f"(Tổng kim cương: {Fore.YELLOW}{user_data[user_id]['total_diamonds']} 💎{Fore.RESET})"
-                )
+                print(f"{Fore.RED}{language_data['invalid_selection']}{Fore.RESET}")
                 time.sleep(1)
-            break
-        else:
-            print(
-                f"{Fore.RED}[HUNG-TOOL]{Fore.RESET}"
-                f"{Fore.WHITE}-->>{Fore.RESET}"
-                f"{Fore.GREEN}[{datetime.now().strftime('%H:%M:%S')}]{Fore.RESET} "
-                f"Lựa chọn không hợp lệ! Vui lòng chọn từ 1 đến {len(id_list) + 1}."
-            )
-
-def get_new_user_id():
-    """Nhập và xác thực ID mới"""
-    global user_id
-    while True:
-        print(f"{Fore.YELLOW}Nhập ID game Free Fire (8-11 Số): {Fore.RESET}", end="")
-        user_id = input()
-        if re.match(r'^\d{8,11}$', user_id):
-            print(
-                f"{Fore.RED}[HUNG-TOOL]{Fore.RESET}"
-                f"{Fore.WHITE}-->>{Fore.RESET}"
-                f"{Fore.GREEN}[{datetime.now().strftime('%H:%M:%S')}]{Fore.RESET} "
-                f"ID {Fore.CYAN}{user_id}{Fore.RESET} hợp lệ!"
-            )
-            if user_id not in user_data:
-                user_data[user_id] = {"total_diamonds": 0}
-                save_user_data()
+                select_user_id()
+        except ValueError:
+            print(f"{Fore.RED}{language_data['invalid_selection']}{Fore.RESET}")
             time.sleep(1)
-            break
-        else:
-            print(
-                f"{Fore.RED}[HUNG-TOOL]{Fore.RESET}"
-                f"{Fore.WHITE}-->>{Fore.RESET}"
-                f"{Fore.GREEN}[{datetime.now().strftime('%H:%M:%S')}]{Fore.RESET} "
-                f"ID {Fore.CYAN}{user_id}{Fore.RESET} không hợp lệ! ID Free Fire phải là 8-11 chữ số."
-            )
+            select_user_id()
+
+def simulate_server_connection():
+    """Mô phỏng kết nối server"""
+    print(f"{Fore.YELLOW}{language_data['server_connecting']}{Fore.RESET}")
+    for _ in range(3):
+        print(f"{Fore.YELLOW}.{Fore.RESET}", end="", flush=True)
+        time.sleep(0.5)
+    success = random.choice([True, False])
+    if success:
+        print(f"{Fore.GREEN}{language_data['server_success']}{Fore.RESET}")
+        return True
+    else:
+        print(f"{Fore.RED}{language_data['server_fail']}{Fore.RESET}")
+        return False
+
+def can_hack_today():
+    """Kiểm tra xem có thể hack trong ngày không"""
+    today = datetime.now().strftime('%Y-%m-%d')
+    if 'last_hack_date' not in user_data[user_id]:
+        user_data[user_id]['last_hack_date'] = today
+        user_data[user_id]['hack_count'] = 0
+    elif user_data[user_id]['last_hack_date'] != today:
+        user_data[user_id]['last_hack_date'] = today
+        user_data[user_id]['hack_count'] = 0
+    
+    if user_data[user_id]['hack_count'] >= 3:
+        print(f"{Fore.RED}{language_data['hack_limit']}{Fore.RESET}")
+        return False
+    return True
 
 def hack_diamonds():
-    global user_data
-    print(
-        f"\n{Fore.RED}[HUNG-TOOL]{Fore.RESET}"
-        f"{Fore.WHITE}-->>{Fore.RESET}"
-        f"{Fore.GREEN}[{datetime.now().strftime('%H:%M:%S')}]{Fore.RESET} "
-        f"Đang kết nối với server hack kim cương Free Fire cho ID {Fore.CYAN}{user_id}{Fore.RESET}..."
-    )
-    for _ in range(30):
-        print("▬", end="", flush=True)
-        time.sleep(0.5)
-    print()
-    print(f"Nhấn Ctrl+C để dừng và quay lại menu.{Fore.RESET}")
-    time.sleep(1)
-    elapsed_seconds = 0  # Biến đếm giây tăng dần
-    try:
-        while True:
-            # Hiển thị thông báo trước khi bắt đầu mỗi lần hack
-            diamonds = random.randint(0, 2)
-            user_data[user_id]["total_diamonds"] += diamonds
-            save_user_data()
-            # Đếm ngược từ 20 về 0, hiển thị trên cùng một dòng
-            for countdown in range(20, -1, -1):
-                print(
-                    f"\r{Fore.RED}[HUNG-TOOL]{Fore.RESET}"
-                    f"{Fore.WHITE}-->>{Fore.RESET}"
-                    f"{Fore.GREEN}[{countdown}]{Fore.RESET}"
-                    f"{Fore.YELLOW}[{datetime.now().strftime('%H:%M:%S')}]{Fore.RESET} "
-                    f"Đang hack kim cương cho ID {Fore.CYAN}{user_id}{Fore.RESET}...",
-                    end=""
-                )
-                sys.stdout.flush()
-                time.sleep(1)
-                elapsed_seconds += 1
-            # Sau 20 giây, in kết quả xuống dòng mới
-            print(
-                f"\n{Fore.RED}[HUNG-TOOL]{Fore.RESET}"
-                f"{Fore.WHITE}-->>{Fore.RESET}"
-                f"{Fore.YELLOW}[Đã chạy: {elapsed_seconds}s]{Fore.RESET}"
-                f"{Fore.YELLOW}[{datetime.now().strftime('%H:%M:%S')}]{Fore.RESET} "
-                f"ID {Fore.CYAN}{user_id}{Fore.RESET} nhận được {Fore.WHITE}{diamonds} 💎 kim cương {Fore.RESET}"
-                f" | Tổng nhận: {Fore.YELLOW}{user_data[user_id]['total_diamonds']} 💎{Fore.RESET}"
-            )
-    except KeyboardInterrupt:
-        print(
-            f"\n{Fore.RED}[HUNG-TOOL]{Fore.RESET}"
-            f"{Fore.WHITE}-->>{Fore.RESET}"
-            f"{Fore.GREEN}[{datetime.now().strftime('%H:%M:%S')}]{Fore.RESET} "
-            f"Đã dừng hack kim cương. Tổng kim cương nhận được: {Fore.YELLOW}{user_data[user_id]['total_diamonds']} 💎{Fore.RESET}"
-            f" | Thời gian đã chạy: {Fore.YELLOW}{elapsed_seconds}s{Fore.RESET}"
-        )
+    """Mô phỏng hack kim cương"""
+    if not can_hack_today():
+        input(f"{Fore.YELLOW}{language_data['press_enter']}{Fore.RESET}")
+        return
+    if simulate_server_connection():
+        diamonds = random.randint(100, 1000)
+        user_data[user_id]['total_diamonds'] = user_data[user_id].get('total_diamonds', 0) + diamonds
+        user_data[user_id]['history'].append({
+            'time': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'type': 'Kim cương' if current_lang == "vi" else "Diamonds",
+            'amount': diamonds
+        })
+        user_data[user_id]['hack_count'] = user_data[user_id].get('hack_count', 0) + 1
         save_user_data()
-        time.sleep(1)
+        print(f"{Fore.GREEN}{language_data['diamonds_received'].format(diamonds, user_data[user_id]['total_diamonds'])}{Fore.RESET}")
+    input(f"{Fore.YELLOW}{language_data['press_enter']}{Fore.RESET}")
 
 def hack_coins():
-    print(
-        f"\n{Fore.RED}[HUNG-TOOL]{Fore.RESET}"
-        f"{Fore.WHITE}-->>{Fore.RESET}"
-        f"{Fore.GREEN}[{datetime.now().strftime('%H:%M:%S')}]{Fore.RESET} "
-        f"Đang kết nối với server hack Vàng Free Fire..."
-    )
-    for _ in range(30):
-        print("▬", end="", flush=True)
-        time.sleep(0.5)
-    print()
-    print(
-        f"{Fore.RED}[HUNG-TOOL]{Fore.RESET}"
-        f"{Fore.WHITE}-->>{Fore.RESET}"
-        f"{Fore.GREEN}[{datetime.now().strftime('%H:%M:%S')}]{Fore.RESET} "
-        f"Kết nối server thất bại. Vui lòng thử lại sau!"
-    )
-    time.sleep(5)
+    """Mô phỏng hack vàng"""
+    if not can_hack_today():
+        input(f"{Fore.YELLOW}{language_data['press_enter']}{Fore.RESET}")
+        return
+    if simulate_server_connection():
+        coins = random.randint(500, 5000)
+        user_data[user_id]['total_coins'] = user_data[user_id].get('total_coins', 0) + coins
+        user_data[user_id]['history'].append({
+            'time': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'type': 'Vàng' if current_lang == "vi" else "Coins",
+            'amount': coins
+        })
+        user_data[user_id]['hack_count'] = user_data[user_id].get('hack_count', 0) + 1
+        save_user_data()
+        print(f"{Fore.GREEN}{language_data['coins_received'].format(coins, user_data[user_id]['total_coins'])}{Fore.RESET}")
+    input(f"{Fore.YELLOW}{language_data['press_enter']}{Fore.RESET}")
 
-def get_game_name():
-    print(
-        f"\n{Fore.RED}[HUNG-TOOL]{Fore.RESET}"
-        f"{Fore.WHITE}-->>{Fore.RESET}"
-        f"{Fore.GREEN}[{datetime.now().strftime('%H:%M:%S')}]{Fore.RESET} "
-        f"Nhập ID game Free Fire (8-11 chữ số): {Fore.RESET}",
-        end=""
-    )
-    temp_id = input()
-    time.sleep(1)
-    if re.match(r'^\d{8,11}$', temp_id):
-        print(
-            f"{Fore.RED}[HUNG-TOOL]{Fore.RESET}"
-            f"{Fore.WHITE}-->>{Fore.RESET}"
-            f"{Fore.GREEN}[{datetime.now().strftime('%H:%M:%S')}]{Fore.RESET} "
-            f"ID {Fore.CYAN}{temp_id}{Fore.RESET} hợp lệ!"
-        )
-    else:
-        print(
-            f"{Fore.RED}[HUNG-TOOL]{Fore.RESET}"
-            f"{Fore.WHITE}-->>{Fore.RESET}"
-            f"{Fore.GREEN}[{datetime.now().strftime('%H:%M:%S')}]{Fore.RESET} "
-            f"ID {Fore.CYAN}{temp_id}{Fore.RESET} không hợp lệ! ID Free Fire phải là 8-11 chữ số."
-        )
-    time.sleep(1)
-    print(
-        f"{Fore.RED}[HUNG-TOOL]{Fore.RESET}"
-        f"{Fore.WHITE}-->>{Fore.RESET}"
-        f"{Fore.GREEN}[{datetime.now().strftime('%H:%M:%S')}]{Fore.RESET} "
-        f"Lưu ý: Đây chỉ là mô phỏng, không kết nối với Free Fire thật!"
-    )
-
-def display_menu():
-    """Hiển thị menu với hiệu ứng xuất hiện dần, xóa màn hình trước"""
+def view_history():
+    """Hiển thị lịch sử giao dịch của ID"""
     os.system('cls' if os.name == 'nt' else 'clear')
     print(f"{Fore.RED}╔══════════════════════════════════════════════════════╗{Fore.RESET}")
-    print_typing(f"{Fore.RED}║          HUNG-TOOL HACK FREE FIRE 2025            {Fore.RESET}", delay=0.03)
-    print_typing(f"{Fore.RED}║ {Fore.RESET}", delay=0.03)
-    print_typing(f"{Fore.RED}║Lưu ý: Đây là bản kết nối với server của mình.      {Fore.RESET}", delay=0.03)
-    print_typing(f"{Fore.RED}║và đây cũng là bản test server nên kim cương  {Fore.RESET}", delay=0.03)
-    print_typing(f"{Fore.RED}║hay là vàng sẽ về acc sau 24h {Fore.RESET}", delay=0.03)
+    print_typing(f"{Fore.RED}║          {language_data['history_title'].format(user_id)}          ║{Fore.RESET}", delay=0.02)
     print(f"{Fore.RED}╚══════════════════════════════════════════════════════╝{Fore.RESET}")
-    # Đảm bảo user_id tồn tại và lấy total_diamonds trực tiếp
-    total_diamonds = user_data[user_id]['total_diamonds'] if user_id in user_data else 0
-    print(f"{Fore.YELLOW} Người chơi: ID: {Fore.CYAN}{user_id} | Tổng nhận: {Fore.YELLOW}{total_diamonds} 💎{Fore.RESET} {Fore.GREEN}Phiên bản: V1.2{Fore.RESET}")
+
+    if 'history' not in user_data[user_id] or not user_data[user_id]['history']:
+        print(f"{Fore.RED}{language_data['no_history']}{Fore.RESET}")
+    else:
+        for entry in user_data[user_id]['history']:
+            print(f"{Fore.CYAN}{entry['time']}: {entry['type']} +{entry['amount']}{Fore.RESET}")
+    input(f"{Fore.YELLOW}{language_data['press_enter']}{Fore.RESET}")
+
+def show_stats_chart():
+    """Hiển thị biểu đồ cột tổng kim cương và vàng"""
+    if not user_data:
+        print(f"{Fore.RED}{language_data['no_data']}{Fore.RESET}")
+        input(f"{Fore.YELLOW}{language_data['press_enter']}{Fore.RESET}")
+        return
+
+    labels = list(user_data.keys())
+    diamonds = [user_data[uid].get('total_diamonds', 0) for uid in labels]
+    coins = [user_data[uid].get('total_coins', 0) for uid in labels]
+
+    ```chartjs
+    {
+        "type": "bar",
+        "data": {
+            "labels": labels,
+            "datasets": [
+                {
+                    "label": "Kim cương" if current_lang == "vi" else "Diamonds",
+                    "data": diamonds,
+                    "backgroundColor": "#FF6384",
+                    "borderColor": "#FF6384",
+                    "borderWidth": 1
+                },
+                {
+                    "label": "Vàng" if current_lang == "vi" else "Coins",
+                    "data": coins,
+                    "backgroundColor": "#36A2EB",
+                    "borderColor": "#36A2EB",
+                    "borderWidth": 1
+                }
+            ]
+        },
+        "options": {
+            "scales": {
+                "y": {
+                    "beginAtZero": true,
+                    "title": {
+                        "display": true,
+                        "text": "Số lượng" if current_lang == "vi" else "Amount"
+                    }
+                },
+                "x": {
+                    "title": {
+                        "display": true,
+                        "text": "ID người dùng" if current_lang == "vi" else "User ID"
+                    }
+                }
+            },
+            "plugins": {
+                "legend": {
+                    "display": true,
+                    "position": "top"
+                },
+                "title": {
+                    "display": true,
+                    "text": "Thống kê kim cương và vàng" if current_lang == "vi" else "Diamonds and Coins Statistics"
+                }
+            }
+        }
+    }
+    ```
+    print(f"{Fore.GREEN}{language_data['chart_displayed']}{Fore.RESET}")
+    input(f"{Fore.YELLOW}{language_data['press_enter']}{Fore.RESET}")
+
+def change_user_id():
+    """Cho phép đổi ID hiện tại"""
+    if login():
+        select_user_id()
+
+def display_menu():
+    """Hiển thị menu chính"""
+    os.system('cls' if os.name == 'nt' else 'clear')
+    print(f"{Fore.RED}╔══════════════════════════════════════════════════════╗{Fore.RESET}")
+    print_typing(f"{Fore.RED}║          {language_data['welcome']}            ║{Fore.RESET}", delay=0.02)
+    print(f"{Fore.RED}╚══════════════════════════════════════════════════════╝{Fore.RESET}")
+    print(f"{Fore.CYAN}ID: {user_id} | Kim cương: {user_data[user_id].get('total_diamonds', 0)} | Vàng: {user_data[user_id].get('total_coins', 0)}{Fore.RESET}")
     print(f"{Fore.GREEN}┌──────────────────────────────────────────────────────┐{Fore.RESET}")
-    
+
     options = [
-        f"1. Hack kim cương        {Fore.GREEN}[SERVER ON]{Fore.RESET}",
-        f"2. Hack vàng             {Fore.RED}[SERVER OFF]{Fore.RESET}",
-        "3. Thoát tool",
+        "1. Hack kim cương" if current_lang == "vi" else "1. Hack diamonds",
+        f"2. Hack vàng             {Fore.RED}[SERVER OFF]{Fore.RESET}" if current_lang == "vi" else f"2. Hack coins             {Fore.RED}[SERVER OFF]{Fore.RESET}",
+        "3. Xem lịch sử giao dịch" if current_lang == "vi" else "3. View transaction history",
+        "4. Xem thống kê" if current_lang == "vi" else "4. View statistics",
+        "5. Đổi ID" if current_lang == "vi" else "5. Change ID",
+        "6. Chọn ngôn ngữ" if current_lang == "vi" else "6. Select language",
+        "7. Thoát tool" if current_lang == "vi" else "7. Exit tool",
     ]
     for option in options:
         num, text = option.split(". ", 1)
@@ -259,48 +372,52 @@ def display_menu():
     print(f"{Fore.GREEN}└──────────────────────────────────────────────────────┘{Fore.RESET}")
 
 def main():
-    os.system('cls' if os.name == 'nt' else 'clear')
-    print_typing(f"{Fore.RED}╔══════════════════════════════════════════════════════╗{Fore.RESET}", delay=0.02)
-    print_typing(f"{Fore.RED}║          HUNG-TOOL HACK FREE FIRE 2025            ║{Fore.RESET}", delay=0.02)
-    print_typing(f"{Fore.RED}╚══════════════════════════════════════════════════════╝{Fore.RESET}", delay=0.02)
-    select_user_id()
-    
-    while True:
-        display_menu()
-        print(f"{Fore.YELLOW}[{datetime.now().strftime('%H:%M:%S')}] Nhập lựa chọn của bạn (1-3): {Fore.RESET}", end="")
-        choice = input()
+    """Hàm chính của chương trình"""
+    global language_data
+    language_data = load_language(current_lang)
+    if login():
+        select_user_id()
+        while True:
+            display_menu()
+            print(f"{Fore.YELLOW}[{datetime.now().strftime('%H:%M:%S')}] {language_data['lang_prompt'].replace('1-2', '1-7')}{Fore.RESET}", end="")
+            choice = input()
 
-        if choice == "1":
-            hack_diamonds()
-        elif choice == "2":
-            hack_coins()
-        elif choice == "3":
-            os.system('cls' if os.name == 'nt' else 'clear')
-            print(
-                f"\n{Fore.RED}[HUNG-TOOL]{Fore.RESET}"
-                f"{Fore.WHITE}-->>{Fore.RESET}"
-                f"{Fore.GREEN}[{datetime.now().strftime('%H:%M:%S')}]{Fore.RESET} "
-                f"Đang thoát tool... Cảm ơn bạn đã sử dụng!"
-            )
-            time.sleep(1)
-            break
-        elif choice == "4":
-            get_game_name()
-        elif choice in ["5", "6"]:
-            error_message = random.choice(["Đang phát triển", "Kết nối server thất bại"])
-            print(
-                f"\n{Fore.RED}[HUNG-TOOL]{Fore.RESET}"
-                f"{Fore.WHITE}-->>{Fore.RESET}"
-                f"{Fore.GREEN}[{error_message}]{Fore.RESET}"
-            )
-            time.sleep(1)
-        else:
-            print(
-                f"\n{Fore.RED}[HUNG-TOOL]{Fore.RESET}"
-                f"{Fore.WHITE}-->>{Fore.RESET}"
-                f"{Fore.GREEN}[{datetime.now().strftime('%H:%M:%S')}]{Fore.RESET} "
-                f"Lựa chọn không hợp lệ! Vui lòng chọn từ 1 đến 4."
-            )
+            if choice == "1":
+                hack_diamonds()
+            elif choice == "2":
+                hack_coins()
+            elif choice == "3":
+                view_history()
+            elif choice == "4":
+                show_stats_chart()
+            elif choice == "5":
+                change_user_id()
+            elif choice == "6":
+                global current_lang, language_data
+                print(f"\n{Fore.CYAN}{language_data['select_language']}{Fore.RESET}")
+                print(f"{Fore.Cyan}{language_data['lang_vi']}{Fore.RESET}")
+                print(f"{Fore.Cyan}{language_data['lang_en']}{Fore.RESET}")
+                lang_choice = input(f"{Fore.GREEN}{language_data['lang_prompt']}{Fore.RESET}")
+                current_lang = "vi" if lang_choice == "1" else "en"
+                language_data = load_language(current_lang)
+            elif choice == "7":
+                os.system('cls' if os.name == 'nt' else 'clear')
+                print(
+                    f"\n{Fore.RED}[HUNG-TOOL]{Fore.RESET}"
+                    f"{Fore.WHITE}-->>{Fore.RESET}"
+                    f"{Fore.GREEN}[{datetime.now().strftime('%H:%M:%S')}]{Fore.RESET} "
+                    f"{language_data['exit_message']}"
+                )
+                time.sleep(1)
+                break
+            else:
+                print(
+                    f"\n{Fore.RED}[HUNG-TOOL]{Fore.RESET}"
+                    f"{Fore.WHITE}-->>{Fore.RESET}"
+                    f"{Fore.GREEN}[{datetime.now().strftime('%H:%M:%S')}]{Fore.RESET} "
+                    f"{language_data['invalid_choice']}"
+                )
+                time.sleep(1)
 
 if __name__ == "__main__":
     main()
