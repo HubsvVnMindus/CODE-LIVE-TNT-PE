@@ -295,17 +295,6 @@ def main():
     global language_data, current_lang
     language_data = load_language(current_lang)
     if login():
-        select_user_id()
-        while True:
-            display_menu()
-            print(f"{Fore.YELLOW}[{datetime.now().strftime('%H:%M:%S')}] {language_data['lang_prompt'].replace('1-2','1-7')}{Fore.RESET}", end="")
-            choice = input()
-            if choice == "1":
-                hack_diamonds()
-            elif choice == "2":
-                hack_coins()
-            elif choice == "3":
-                view_history()
 import random
 import time
 from datetime import datetime
