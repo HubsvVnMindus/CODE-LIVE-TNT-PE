@@ -28,12 +28,12 @@ def animate_print(text, r_start, g_start, b_start, delay=0.0005, end=''):
 
 def banner():
     banner="""
-░██████╗████████╗░██████╗░░██████╗░██╗░░░░░
-██╔════╝╚══██╔══╝██╔═══██╗██╔═══██╗██║░░░░░
-██║░░░░░░░░██║░░░██║░░░██║██║░░░██║██║░░░░░
-██║░░░░░░░░██║░░░██║░░░██║██║░░░██║██║░░░░░
-╚██████╗░░░██║░░░╚██████╔╝╚██████╔╝███████╗
- ╚═════╝░░░╚═╝░░░░╚═════╝░░╚═════╝░╚══════╝
+██╗  ██╗██╗   ██╗███╗   ██╗ ██████╗ 
+██║  ██║██║   ██║████╗  ██║██╔════╝ 
+███████║██║   ██║██╔██╗ ██║██║  ███╗
+██╔══██║██║   ██║██║╚██╗██║██║   ██║
+██║  ██║╚██████╔╝██║ ╚████║╚██████╔╝
+╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═══╝ ╚═════╝ 
     """
     r = 255
     g = 255
@@ -51,11 +51,11 @@ def banner():
     prints(247, 255, 97,"✨" + "═" * 45 + "✨")
     prints(32, 230, 151,"🌟 TOOL - NHẬP CODE 🌟".center(45))
     prints(247, 255, 97,"═" * 47)
-    prints(7, 205, 240,"YouTube: https://www.youtube.com/@Tool-Xworld")
-    prints(7, 205, 240,"Tiktok:https://www.tiktok.com/@cng1237929")
-    prints(7, 205, 240,"Telegram: https://t.me/+PByWNy8hDxYzYTRl")
-    prints(7, 205, 240,"Nhón zalo: https://zalo.me/g/fmyvre167")
-    prints(7, 205, 240,"Admin: Thành Công | Zalo: 0842010239")
+    prints(7, 205, 240,"Youtube: No.1")
+    prints(7, 205, 240,"TikTok: No.1")
+    prints(7, 205, 240,"Telegram: No.1")
+    prints(7, 205, 240,"Nhón zalo: No.1")
+    prints(7, 205, 240,"Admin: HungTool | Zalo: 0398639736")
     prints(247, 255, 97,"═" * 47)
 
 
@@ -387,3 +387,4 @@ def main_canh_code():
 if __name__ == "__main__":
     main_canh_code()
 # tam25107 codevip99 baothong01
+
