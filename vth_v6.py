@@ -51,7 +51,7 @@ def banner(game):
     prints(7, 205, 240,"Tiktok: No.1")
     prints(7, 205, 240,"Telegram: No.1")
     prints(7, 205, 240,"Nhóm Zalo: No.1")
-    prints(7, 205, 240,"Admin: Thành Công ")
+    prints(7, 205, 240,"Admin: HungTool ")
     prints(247, 255, 97,"═" * 47)
 def load_data_vth():
     if os.path.exists('data-xw-vth.txt'):
@@ -388,3 +388,4 @@ def main_vth():
     else:
         print('Tool đã dừng hoạt động')
 main_vth()
+
